@@ -31,33 +31,39 @@ joinBtn.onclick = async () => {
   localVideo.srcObject = localStream;
 
   // Connect to signaling server
-ws = new WebSocket("wss://misty-one2one-signal.repl.co");
-
+  ws = new WebSocket("wss://misty-one2one-signal.repl.co");
 
   ws.onopen = () => {
-    ws.send(JSON.stringify({ join: room }));
+    ws.send(JSON.stringify({ type: "join", room }));
   };
 
   ws.onmessage = async (msg) => {
     const data = JSON.parse(msg.data);
 
     // CHAT RECEIVING
-    if (data.chat) {
-      addMessage("guest", data.chat);
+    if (data.type === "chat") {
+      addMessage("guest", data.text);
     }
 
-    if (data.offer) {
+    // WEBRTC SIGNALING
+    if (data.type === "offer") {
       await peer.setRemoteDescription(new RTCSessionDescription(data.offer));
       const answer = await peer.createAnswer();
       await peer.setLocalDescription(answer);
-      ws.send(JSON.stringify({ answer, room }));
+
+      // ANSWER SENDING (THIS GOES HERE)
+      ws.send(JSON.stringify({
+        type: "answer",
+        answer,
+        room
+      }));
     }
 
-    if (data.answer) {
+    if (data.type === "answer") {
       await peer.setRemoteDescription(new RTCSessionDescription(data.answer));
     }
 
-    if (data.ice) {
+    if (data.type === "ice") {
       try {
         await peer.addIceCandidate(data.ice);
       } catch (e) {}
@@ -69,23 +75,37 @@ ws = new WebSocket("wss://misty-one2one-signal.repl.co");
     iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
   });
 
+  // ICE SENDING (THIS GOES HERE)
   peer.onicecandidate = (event) => {
     if (event.candidate) {
-      ws.send(JSON.stringify({ ice: event.candidate, room }));
+      ws.send(JSON.stringify({
+        type: "ice",
+        ice: event.candidate,
+        room
+      }));
     }
   };
 
+  // Remote video
   peer.ontrack = (event) => {
     remoteVideo.srcObject = event.streams[0];
   };
 
+  // Add local stream
   localStream.getTracks().forEach(track => {
     peer.addTrack(track, localStream);
   });
 
+  // Create offer
   const offer = await peer.createOffer();
   await peer.setLocalDescription(offer);
-  ws.send(JSON.stringify({ offer, room }));
+
+  // OFFER SENDING (THIS GOES HERE)
+  ws.send(JSON.stringify({
+    type: "offer",
+    offer,
+    room
+  }));
 };
 
 // CHAT SENDING
@@ -96,7 +116,8 @@ chatInput.addEventListener("keydown", (e) => {
     addMessage("you", msg);
 
     ws.send(JSON.stringify({
-      chat: msg,
+      type: "chat",
+      text: msg,
       room: roomInput.value.trim()
     }));
 
