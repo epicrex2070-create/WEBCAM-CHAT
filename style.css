@@ -1,3 +1,31 @@
+body {
+  background: #111;
+  color: white;
+  font-family: Arial;
+  text-align: center;
+  padding: 20px;
+}
+
+video {
+  width: 45%;
+  background: black;
+  margin: 10px;
+  border-radius: 10px;
+  transform: scaleX(-1);
+}
+
+#videos {
+  display: flex;
+  justify-content: center;
+}
+
+input, button {
+  padding: 10px;
+  font-size: 18px;
+  margin: 10px;
+}
+
+/* CHATBOX */
 #chatbox {
   position: fixed;
   bottom: 20px;
