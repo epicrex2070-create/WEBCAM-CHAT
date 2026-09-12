@@ -110,7 +110,3 @@ function addMessage(sender, text) {
   messages.appendChild(div);
   messages.scrollTop = messages.scrollHeight;
 }
-
-  messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
-}
