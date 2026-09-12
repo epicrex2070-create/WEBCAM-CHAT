@@ -71,7 +71,7 @@
     let peer;
     let ws;
 
-    joinBtn.onclick = async () => {
+    joinBtn.onclick = async () => {messages.innerHTML = "";} // clear chat on new room
       const room = roomInput.value.trim();
       if (!room) return alert("Enter a room code");
 
