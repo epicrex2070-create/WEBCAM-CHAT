@@ -23,3 +23,10 @@ chatInput.addEventListener("keydown", (e) => {
     chatInput.value = "";
   }
 });
+
+function addMessage(sender, text) {
+  const div = document.createElement("div");
+  div.textContent = sender + ": " + text;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+}
