@@ -31,9 +31,8 @@ joinBtn.onclick = async () => {
   localVideo.srcObject = localStream;
 
   // Connect to signaling server
-  ws = new WebSocket("wss://signal.simplewebrtc.com
+ws = new WebSocket("wss://websocket-relay.fly.dev");
 
-");
 
   ws.onopen = () => {
     ws.send(JSON.stringify({ type: "join", room }));
