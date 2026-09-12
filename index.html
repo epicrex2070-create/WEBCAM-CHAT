@@ -1,46 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 
-  <head>
-    <meta charset="UTF-8">
-    <title>Easy chat with friends!</title>
-    <link rel="icon" type="image/png" href="favicon.png">
-
-    
-
-  </head>
-    
-  <body>
-  <!DOCTYPE html>
-<html>
 <head>
-  <title>Webcam Chat Room</title>
-  <style>
-    body {
-      background: #111;
-      color: white;
-      font-family: Arial;
-      text-align: center;
-      padding: 20px;
-    }
-    video {
-      width: 45%;
-      background: black;
-      margin: 10px;
-      border-radius: 10px;
-      transform: scaleX(-1);
-    }
-    #videos {
-      display: flex;
-      justify-content: center;
-    }
-    input, button {
-      padding: 10px;
-      font-size: 18px;
-      margin: 10px;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <title>Easy chat with friends!</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
   <h2>Webcam Chat Room</h2>
@@ -49,99 +16,18 @@
   <button id="joinBtn">Join Room</button>
   <button id="fsBtn">Fullscreen</button>
 
-
   <div id="videos" style="display:none;">
     <video id="localVideo" autoplay playsinline></video>
     <video id="remoteVideo" autoplay playsinline></video>
   </div>
 
-<div id="chatbox">
-  <div id="messages"></div>
-  <input id="chatInput" placeholder="Type a message...">
-</div>
+  <!-- CHATBOX -->
+  <div id="chatbox">
+    <div id="messages"></div>
+    <input id="chatInput" placeholder="Type a message...">
+  </div>
 
-  
-  <script>
-    const roomInput = document.getElementById("roomInput");
-    const joinBtn = document.getElementById("joinBtn");
-    const localVideo = document.getElementById("localVideo");
-    const remoteVideo = document.getElementById("remoteVideo");
-
-    let localStream;
-    let peer;
-    let ws;
-
-    joinBtn.onclick = async () => {messages.innerHTML = ""; // clear chat on new room
-      const room = roomInput.value.trim();
-      if (!room) return alert("Enter a room code");
-
-      document.getElementById("videos").style.display = "flex";
-
-      // Start webcam
-      localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      localVideo.srcObject = localStream;
-
-      // Connect to signaling server (public WebSocket echo server)
-      ws = new WebSocket("wss://ws.postman-echo.com/raw");
-
-      ws.onopen = () => {
-        ws.send(JSON.stringify({ join: room }));
-      };
-
-      ws.onmessage = async (msg) => {
-        const data = JSON.parse(msg.data);
-
-        if (data.offer) {
-          await peer.setRemoteDescription(new RTCSessionDescription(data.offer));
-          const answer = await peer.createAnswer();
-          await peer.setLocalDescription(answer);
-          ws.send(JSON.stringify({ answer, room }));
-        }
-
-        if (data.answer) {
-          await peer.setRemoteDescription(new RTCSessionDescription(data.answer));
-        }
-
-        if (data.ice) {
-          try {
-            await peer.addIceCandidate(data.ice);
-          } catch (e) {}
-        }
-      };
-
-      // Create WebRTC peer
-      peer = new RTCPeerConnection({
-        iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
-      });
-
-      // Send ICE candidates
-      peer.onicecandidate = (event) => {
-        if (event.candidate) {
-          ws.send(JSON.stringify({ ice: event.candidate, room }));
-        }
-      };
-
-      // Show remote video
-      peer.ontrack = (event) => {
-        remoteVideo.srcObject = event.streams[0];
-      };
-
-      // Add local stream
-      localStream.getTracks().forEach(track => {
-        peer.addTrack(track, localStream);
-      });
-
-      // Create offer
-      const offer = await peer.createOffer();
-      await peer.setLocalDescription(offer);
-      ws.send(JSON.stringify({ offer, room }));
-    };
-  </script>
+  <script src="script.js"></script>
 
 </body>
-</html>
-    <script  src="./script.js"></script>
-
-  </body>
-  
 </html>
