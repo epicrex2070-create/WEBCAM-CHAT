@@ -31,8 +31,8 @@ joinBtn.onclick = async () => {
   localVideo.srcObject = localStream;
 
   // Connect to signaling server
-  ws = new WebSocket("wss://misty-one2one-signal.repl.co
-");
+ws = new WebSocket("wss://misty-one2one-signal.repl.co");
+
 
   ws.onopen = () => {
     ws.send(JSON.stringify({ join: room }));
